@@ -1,0 +1,126 @@
+import java.util.Random;
+import java.util.Scanner;
+// PLBHOJ
+public class Connect4 {
+    private static final int ROWS = 6;
+    private static final int COLS = 7;
+    private static final char EMPTY = '.';
+    private static final char YELLOW = 'Y';
+    private static final char RED = 'R';
+    private char[][] board;
+    private Scanner scanner;
+
+    public Connect4() {
+        board = new char[ROWS][COLS];
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
+                board[i][j] = EMPTY;
+            }
+        }
+        scanner = new Scanner(System.in);
+    }
+
+    public void playGame() {
+        boolean gameOver = false;
+        printBoard();
+        while (!gameOver) {
+            playerMove();
+            printBoard();
+            if (checkWin(YELLOW)) {
+                System.out.println("Gratulálunk! Te nyertél!");
+                gameOver = true;
+                break;
+            }
+
+            aiMove();
+            printBoard();
+            if (checkWin(RED)) {
+                System.out.println("A gép nyert! Próbáld újra.");
+                gameOver = true;
+            }
+        }
+    }
+
+    private void printBoard() {
+        for (int r = ROWS - 1; r >= 0; r--) {
+            for (int c = 0; c < COLS; c++) {
+                System.out.print(board[r][c] + " ");
+            }
+            System.out.println();
+        }
+        System.out.println("a b c d e f g");
+    }
+
+    private void playerMove() {
+        int col = -1;
+        while (col < 0 || col >= COLS || !isValidMove(col)) {
+            System.out.print("Válassz egy oszlopot (a-g): ");
+            String input = scanner.nextLine();
+            col = input.charAt(0) - 'a'; // 'a' -> 0, 'b' -> 1, ...
+        }
+        dropPiece(col, YELLOW);
+    }
+
+    private void aiMove() {
+        Random rand = new Random();
+        int col;
+        do {
+            col = rand.nextInt(COLS);
+        } while (!isValidMove(col));
+        dropPiece(col, RED);
+    }
+
+    private boolean isValidMove(int col) {
+        return board[ROWS - 1][col] == EMPTY;
+    }
+
+    private void dropPiece(int col, char piece) {
+        for (int r = 0; r < ROWS; r++) {
+            if (board[r][col] == EMPTY) {
+                board[r][col] = piece;
+                break;
+            }
+        }
+    }
+
+    private boolean checkWin(char piece) {
+
+        for (int r = 0; r < ROWS; r++) {
+            for (int c = 0; c < COLS - 3; c++) {
+                if (board[r][c] == piece && board[r][c + 1] == piece && board[r][c + 2] == piece && board[r][c + 3] == piece) {
+                    return true;
+                }
+            }
+        }
+
+        for (int c = 0; c < COLS; c++) {
+            for (int r = 0; r < ROWS - 3; r++) {
+                if (board[r][c] == piece && board[r + 1][c] == piece && board[r + 2][c] == piece && board[r + 3][c] == piece) {
+                    return true;
+                }
+            }
+        }
+
+        for (int r = 0; r < ROWS - 3; r++) {
+            for (int c = 0; c < COLS - 3; c++) {
+                if (board[r][c] == piece && board[r + 1][c + 1] == piece && board[r + 2][c + 2] == piece && board[r + 3][c + 3] == piece) {
+                    return true;
+                }
+            }
+        }
+        
+        for (int r = 0; r < ROWS - 3; r++) {
+            for (int c = 3; c < COLS; c++) {
+                if (board[r][c] == piece && board[r + 1][c - 1] == piece && board[r + 2][c - 2] == piece && board[r + 3][c - 3] == piece) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public static void main(String[] args) {
+        Connect4 game = new Connect4();
+        game.playGame();
+    }
+}
